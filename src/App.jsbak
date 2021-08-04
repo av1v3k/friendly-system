@@ -1,0 +1,93 @@
+import { useState, useEffect } from "react";
+import ReactHtmlParser from "react-html-parser";
+import "./App.css";
+
+Date.prototype.monthDays = function () {
+  var d = new Date(this.getFullYear(), this.getMonth() + 1, 0);
+  return d.getDate();
+};
+
+function App({ currentDate }) {
+  const [currDate, setCurrDate] = useState(null);
+  const [totalDays, setTotalDays] = useState(0);
+
+  const weekDays = [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+
+  const months = [
+    "January",
+    "February",
+    "March",
+    "April",
+    "May",
+    "June",
+    "July",
+    "August",
+    "September",
+    "October",
+    "November",
+    "December",
+  ];
+
+  useEffect(() => {
+    if (currentDate) {
+      setTotalDays(currentDate.monthDays());
+      setCurrDate(currentDate);
+    }
+  }, [currentDate]);
+
+  const renderTable = () => {
+    let start = new Date(currDate.getFullYear(), currDate.getMonth()).getDay();
+    let cal = [];
+    let day = 1;
+    for (let i = 0; i <= 6; i++) {
+      cal.push(["<tr>"]);
+      for (let j = 0; j < 7; j++) {
+        if (i === 0) {
+          cal[i].push("<td>" + weekDays[j] + "</td>");
+        } else if (day > totalDays) {
+          cal[i].push("<td>&nbsp;</td>");
+        } else {
+          if (i === 1 && j < start) {
+            cal[i].push("<td>&nbsp;</td>");
+          } else {
+            cal[i].push('<td className="day">' + day++ + "</td>");
+          }
+        }
+      }
+      cal[i].push("</tr>");
+    }
+
+    cal = cal
+      .reduce(function (a, b) {
+        return a.concat(b);
+      }, [])
+      .join("");
+    return cal;
+  }; //renderTable
+
+  const leftClick = () => {
+    console.log('left clicked');
+  }
+
+  return (
+    <div className="App">
+      {currDate
+        ? ReactHtmlParser(
+            "<div class='title'><div>Title</div><div class='buttonHolder'><button class='left' click={leftClick()}><</button><button>Today</button><button class='right'>></button></div></div><table><tbody>" +
+              renderTable() +
+              "</tbody></table>"
+          )
+        : null}
+    </div>
+  );
+}
+
+export default App;
